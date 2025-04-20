@@ -1,36 +1,81 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+```markdown
+# 🏁 GridSniffer
 
-## Getting Started
+**AI-powered event scraper for track days, races, and motorsport meetups**
 
-First, run the development server:
+GridSniffer is an intelligent web scraping and ingestion system built to collect motorsport event data from even the messiest corners of the web. It’s designed for track day aggregators, race calendars, and driving enthusiast platforms that want structured event data from inconsistent, SEO-poor sources.
+
+## 🚦 Features
+
+- 📍 **Multi-source scraping** – Handles HTML, PDFs, images, and CSS-based calendars
+- 🤖 **AI-Powered Interpretation** – Uses Deepseek to extract event info from raw content
+- ✅ **Zod Validation** – Ensures structured output with clean JSON formats
+- 🧠 **OCR Support** – Screenshots and scanned image text parsing using Tesseract.js
+- 🌐 **Headless Browser Rendering** – Screenshots complex or JavaScript-heavy pages
+- 🛠️ **Admin Dashboard** – Easily manage sources and trigger scraping jobs
+- 💾 **MongoDB Storage** – Cleanly stores event data for downstream use
+
+## 📄 Output Format
+
+```ts
+{
+  eventName: string;
+  startDate: string;
+  endDate: string;
+  location: string;
+  price?: string;
+  sourceURL: string;
+  scrapedAt: string;
+}
+```
+
+## 🧰 Tech Stack
+
+- **Framework**: Next.js
+- **Styling**: DaisyUI + TailwindCSS
+- **Database**: MongoDB (via Mongoose)
+- **AI**: Deepseek API
+- **Validation**: Zod
+- **OCR**: Tesseract.js
+- **Headless Browser**: Puppeteer
+
+## 🎯 Use Cases
+
+- Track day aggregators
+- Motorsport event calendars
+- Driving community platforms
+- AI-based calendar sync tools
+
+## 📦 Installation
+
+```bash
+git clone https://github.com/yourusername/GridSniffer.git
+cd GridSniffer
+npm install
+```
+
+Create a `.env.local` file and add:
+
+```env
+MONGODB_URI=your_mongodb_connection_string
+DEEPSEEK_API_KEY=your_deepseek_api_key
+```
+
+Then run the dev server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🤝 Contributing
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+Pull requests and suggestions welcome! Feel free to fork the project and submit issues or improvements.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 📄 License
 
-## Learn More
+MIT License
+```
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Let me know if you’d like to include badges (build status, license, etc.), a logo, or usage examples.
