@@ -13,17 +13,53 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Website {
-  id             String        @id @default(uuid())
-  url            String        @unique
-  scrapeStrategy ScrapeStrategy
-  customSelectors Json?
-  lastScraped    DateTime?
-  scrapeStatus   ScrapeStatus  @default(PENDING)
-  scrapeMessage  String?
-  enabled        Boolean       @default(true)
-  createdAt      DateTime      @default(now())
-  updatedAt      DateTime      @updatedAt
+model Organization {
+  id            String     @id @default(uuid())
+  name          String     @unique
+  acronym       String?
+  description   String?
+  homeWebsite   String?
+  logo          Bytes?
+  eventSources  EventSource[]
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+}
+
+model EventSource {
+  id             String      @id @default(uuid())
+  organizationId String
+  url            String
+  scrapes        ScrapeJob[]
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+}
+
+model ScrapeJob {
+  id               String        @id @default(uuid())
+  eventSourceId    String
+  url              String
+  scrapeStrategy   ScrapeStrategy
+  customSelectors  Json?
+  lastScraped      DateTime?
+  scrapeStatus     ScrapeStatus  @default(PENDING)
+  scrapeMessage    String?
+  eventSource      EventSource   @relation(fields: [eventSourceId], references: [id])
+  events           Event[]
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+}
+
+model Event {
+  id           String    @id @default(uuid())
+  scrapeJobId  String
+  eventName    String
+  startDate    DateTime
+  endDate      DateTime?  // <-- optional if some events are one-day only
+  location     Json       // Expected to be GeoJSON Point
+  price        String?
+  scrapeJob    ScrapeJob  @relation(fields: [scrapeJobId], references: [id])
+  createdAt    DateTime   @default(now())
 }
 
 enum ScrapeStrategy {
@@ -39,3 +75,4 @@ enum ScrapeStatus {
   SUCCESS
   ERROR
 }
+
