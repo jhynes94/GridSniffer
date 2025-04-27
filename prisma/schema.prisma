@@ -14,14 +14,16 @@ datasource db {
 }
 
 model Website {
-  id              String   @id @default(uuid())
-  url             String   @unique
-  scrapeStrategy  ScrapeStrategy
+  id             String        @id @default(uuid())
+  url            String        @unique
+  scrapeStrategy ScrapeStrategy
   customSelectors Json?
-  lastScraped     DateTime?
-  enabled         Boolean  @default(true)
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  lastScraped    DateTime?
+  scrapeStatus   ScrapeStatus  @default(PENDING)
+  scrapeMessage  String?
+  enabled        Boolean       @default(true)
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
 }
 
 enum ScrapeStrategy {
@@ -29,4 +31,11 @@ enum ScrapeStrategy {
   pdf
   image
   css_calendar
+}
+
+enum ScrapeStatus {
+  PENDING
+  RUNNING
+  SUCCESS
+  ERROR
 }
