@@ -36,7 +36,7 @@ export async function runScrape(website) {
 // Scrape basic HTML and use Deepseek to extract event data
 async function handleGenericHTML(url) {
     const html = await fetchHTML(url);
-    const deepseekResponse = await callDeepseekAI(html);
+    const deepseekResponse = await callDeepSeekTextEvents(convert(html));
 
     // Validate the entire response object
     const result = EventArraySchema.safeParse(deepseekResponse);
@@ -59,7 +59,7 @@ async function fetchHTML(url) {
 }
 
 // Call Deepseek AI with a specific prompt for extracting track day events
-async function callDeepseekAI(html) {
+async function callDeepSeekTextEvents(text) {
     try {
         const response = await axios.post(
             "https://api.deepseek.com/v1/chat/completions",
@@ -68,7 +68,7 @@ async function callDeepseekAI(html) {
                 messages: [
                     { role: "system", content: "You are an AI that extracts motorsport event listings from a provided text." },
                     {
-                        role: "user", content: `${convert(html)}
+                        role: "user", content: `${text}
                         Return JSON of structured events in the format:
                         {
                         events: [
