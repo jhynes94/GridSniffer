@@ -1,20 +1,31 @@
 import { prisma } from '@/lib/prisma';
 
-export default async function OrganizationsPage() {
+export default async function OrganizationsPage({ searchParams: searchParamsPromise }) {
   const organizations = await prisma.organization.findMany({
     orderBy: { createdAt: 'desc' },
   });
+
+  const searchParams = await searchParamsPromise;
+  const success = searchParams?.success;
 
   return (
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold">Registered Organizations</h1>
         <div className="flex gap-2">
-          <a href="/add-organization" className="btn btn-primary">
+          <a href="/organizations/add-organization" className="btn btn-primary">
             ➕ Add Organization
           </a>
         </div>
       </div>
+
+      {success && (
+        <div className="toast toast-top toast-end">
+          <div className="alert alert-success">
+            <span>Organization saved successfully!</span>
+          </div>
+        </div>
+      )}
 
       {organizations.length === 0 ? (
         <p className="text-gray-500">No organizations registered yet.</p>
@@ -59,13 +70,12 @@ export default async function OrganizationsPage() {
                 </div>
 
                 <div className="flex gap-2 flex-wrap mt-4">
-                  <a href={`/edit-organization/${org.id}`} className="btn btn-sm btn-neutral">
+                  <a href={`/organizations/edit-organization/${org.id}`} className="btn btn-sm btn-neutral">
                     Edit
                   </a>
-                  <a href={`/organization/${org.id}/sources`} className="btn btn-sm btn-info">
+                  <a href={`/organizations/${org.id}/sources`} className="btn btn-sm btn-info">
                     Manage Sources
                   </a>
-                  {/* Future: Maybe a Delete button if you want */}
                 </div>
               </div>
             );
