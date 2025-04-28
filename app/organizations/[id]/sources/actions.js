@@ -2,6 +2,7 @@
 
 import { prisma } from '@/lib/prisma';
 import { runScrape } from '@/lib/scrape-runner';
+import { revalidatePath } from 'next/cache';
 
 export async function addEventSource(organizationId, formData) {
   const url = formData.get('url');
@@ -58,6 +59,30 @@ export async function scrapeEventSource(sourceId) {
   try {
     const result = await runScrape(source);
 
+    console.log('Scrape Result:', result);
+
+    if (result.events && Array.isArray(result.events)) {
+      for (const event of result.events) {
+        try {
+          await prisma.event.create({
+            data: {
+              scrapeJobId: scrapeJob.id,
+              eventName: event.eventName,
+              startDate: new Date(event.startDate),
+              endDate: event.endDate ? new Date(event.endDate) : null,
+              location: {
+                lat: 0, // Placeholder (upgrade later)
+                lng: 0,
+              },
+              price: event.price || null,
+            },
+          });
+        } catch (eventInsertError) {
+          console.error('Failed to insert event:', event, eventInsertError.message);
+        }
+      }
+    }
+
     await prisma.scrapeJob.update({
       where: { id: scrapeJob.id },
       data: {
@@ -68,7 +93,7 @@ export async function scrapeEventSource(sourceId) {
     });
 
   } catch (err) {
-    console.error(err);
+    console.error('Scrape failed:', err.message || err);
 
     await prisma.scrapeJob.update({
       where: { id: scrapeJob.id },
@@ -79,4 +104,7 @@ export async function scrapeEventSource(sourceId) {
       },
     });
   }
+
+  // 🔥 Revalidate the Sources page so status updates without manual refresh
+  revalidatePath(`/organizations/${source.organizationId}/sources`);
 }

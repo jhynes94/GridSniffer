@@ -1,5 +1,5 @@
 import { prisma } from '@/lib/prisma';
-import { scrapeEventSource } from './actions'; // 👈 Action for scraping
+import { ScrapeNowButton } from './ScrapeNowButton'; // Adjust path if needed
 
 function statusColor(status) {
   switch (status) {
@@ -12,10 +12,21 @@ function statusColor(status) {
 
 export default async function EventSourcesPage({ params: paramsPromise }) {
   const params = await paramsPromise;
+  const { id: organizationId } = params;
 
   const organization = await prisma.organization.findUnique({
-    where: { id: params.id },
-    include: { eventSources: { orderBy: { createdAt: 'desc' } } },
+    where: { id: organizationId },
+    include: {
+      eventSources: {
+        orderBy: { createdAt: 'desc' },
+        include: {
+          scrapes: {
+            orderBy: { createdAt: 'desc' },
+            take: 1,
+          },
+        },
+      },
+    },
   });
 
   if (!organization) {
@@ -24,48 +35,98 @@ export default async function EventSourcesPage({ params: paramsPromise }) {
 
   return (
     <div className="p-6">
-      <h1 className="text-3xl font-bold mb-6">Manage Event Sources for {organization.name}</h1>
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-3xl font-bold">Manage Event Sources for {organization.name}</h1>
+        <a
+          href="/organizations"
+          className="btn btn-secondary"
+        >
+          ← Back to Organizations
+        </a>
+      </div>
 
       {organization.eventSources.length === 0 ? (
-        <p className="text-gray-500">No Event Sources registered yet.</p>
+        <div className="flex flex-col items-center justify-center text-center p-10 bg-base-200 rounded-lg shadow-md">
+          <h2 className="text-2xl font-semibold mb-4">No Event Sources Yet</h2>
+          <p className="text-gray-500 mb-6">Start by adding your first Event Source to begin scraping events!</p>
+          <a
+            href={`/organizations/${organizationId}/sources/add`}
+            className="btn btn-primary"
+          >
+            ➕ Add Event Source
+          </a>
+          <a
+            href="/organizations"
+            className="btn btn-ghost mt-4"
+          >
+            ← Back to Organizations
+          </a>
+        </div>
       ) : (
         <div className="grid gap-4">
-          {organization.eventSources.map((source) => (
-            <form key={source.id} className="card shadow bg-base-200 card-bordered p-4 space-y-2">
-              <div>
-                <p><strong>URL:</strong> {source.url}</p>
-                <p>
-                  <strong>Status:</strong>{' '}
-                  <span className={`badge ${statusColor(source.scrapeStatus)}`}>
-                    {source.scrapeStatus || 'PENDING'}
-                  </span>
-                </p>
-                <p><strong>Created:</strong> {new Date(source.createdAt).toLocaleDateString()}</p>
-              </div>
+          {organization.eventSources.map((source) => {
+            const latestScrape = source.scrapes[0];
+            const scrapeStatus = latestScrape?.scrapeStatus || 'PENDING';
 
-              <div className="flex gap-2 mt-4">
-                <a
-                  href={`/organizations/${organization.id}/sources/${source.id}/edit`}
-                  className="btn btn-sm btn-neutral"
-                >
-                  Edit
-                </a>
+            return (
+              <div key={source.id} className="card shadow bg-base-200 card-bordered p-4 space-y-2">
+                <div>
+                  <p><strong>URL:</strong> {source.url}</p>
+                  <p>
+                    <strong>Status:</strong>{' '}
+                    <span className={`badge ${statusColor(scrapeStatus)}`}>
+                      {scrapeStatus}
+                      {scrapeStatus === 'RUNNING' && (
+                        <span className="loading loading-spinner loading-xs ml-2"></span>
+                      )}
+                    </span>
+                  </p>
+                  <p><strong>Created:</strong> {new Date(source.createdAt).toLocaleDateString()}</p>
+                </div>
 
-                <button
-                  formAction={scrapeEventSource.bind(null, source.id)}
-                  className="btn btn-sm btn-info"
-                >
-                  Scrape Now
-                </button>
+                <div className="flex flex-wrap gap-2 mt-4">
+                  <a
+                    href={`/organizations/${organizationId}/sources/${source.id}/edit`}
+                    className="btn btn-sm btn-neutral"
+                  >
+                    ✏️ Edit
+                  </a>
+
+                  <ScrapeNowButton sourceId={source.id} />
+
+                  <a
+                    href={`/organizations/${organizationId}/sources/${source.id}/events`}
+                    className="btn btn-sm btn-primary"
+                  >
+                    📅 View Events
+                  </a>
+
+                  <a
+                    href={`/organizations/${organizationId}/sources/${source.id}/scrape-history`}
+                    className="btn btn-sm btn-accent"
+                  >
+                    📜 Scrape History
+                  </a>
+                </div>
               </div>
-            </form>
-          ))}
+            );
+          })}
         </div>
       )}
 
-      <div className="mt-6">
-        <a href={`/organizations/${organization.id}/sources/add`} className="btn btn-primary">
+      <div className="flex justify-between items-center mt-8">
+        <a
+          href={`/organizations/${organizationId}/sources/add`}
+          className="btn btn-primary"
+        >
           ➕ Add New Event Source
+        </a>
+
+        <a
+          href="/organizations"
+          className="btn btn-secondary"
+        >
+          ← Back to Organizations
         </a>
       </div>
     </div>
