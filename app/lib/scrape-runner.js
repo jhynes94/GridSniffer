@@ -20,7 +20,7 @@ export async function runScrape(website) {
     const { url, scrapeStrategy } = website;
 
     switch (scrapeStrategy) {
-        case 'generic_ai':
+        case 'html':
             return await handleGenericHTML(url);
         case 'pdf':
             return await handlePDF(url);

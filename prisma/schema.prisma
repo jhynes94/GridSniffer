@@ -29,6 +29,7 @@ model EventSource {
   id             String      @id @default(uuid())
   organizationId String
   url            String
+  scrapeStrategy ScrapeStrategy
   scrapes        ScrapeJob[]
   organization   Organization @relation(fields: [organizationId], references: [id])
   createdAt      DateTime    @default(now())
@@ -63,10 +64,10 @@ model Event {
 }
 
 enum ScrapeStrategy {
-  generic_ai
+  html
   pdf
   image
-  css_calendar
+  screenshot
 }
 
 enum ScrapeStatus {

@@ -1,9 +1,21 @@
 import { prisma } from '@/lib/prisma';
+import { scrapeEventSource } from './actions'; // 👈 Action for scraping
 
-export default async function EventSourcesPage({ params }) {
+function statusColor(status) {
+  switch (status) {
+    case 'RUNNING': return 'badge-warning';
+    case 'SUCCESS': return 'badge-success';
+    case 'ERROR': return 'badge-error';
+    default: return 'badge-ghost'; // PENDING or undefined
+  }
+}
+
+export default async function EventSourcesPage({ params: paramsPromise }) {
+  const params = await paramsPromise;
+
   const organization = await prisma.organization.findUnique({
     where: { id: params.id },
-    include: { eventSources: true },
+    include: { eventSources: { orderBy: { createdAt: 'desc' } } },
   });
 
   if (!organization) {
@@ -19,17 +31,34 @@ export default async function EventSourcesPage({ params }) {
       ) : (
         <div className="grid gap-4">
           {organization.eventSources.map((source) => (
-            <div key={source.id} className="card shadow bg-base-200 card-bordered p-4 space-y-2">
-              <p><strong>URL:</strong> {source.url}</p>
-              <p><strong>Created:</strong> {new Date(source.createdAt).toLocaleDateString()}</p>
+            <form key={source.id} className="card shadow bg-base-200 card-bordered p-4 space-y-2">
+              <div>
+                <p><strong>URL:</strong> {source.url}</p>
+                <p>
+                  <strong>Status:</strong>{' '}
+                  <span className={`badge ${statusColor(source.scrapeStatus)}`}>
+                    {source.scrapeStatus || 'PENDING'}
+                  </span>
+                </p>
+                <p><strong>Created:</strong> {new Date(source.createdAt).toLocaleDateString()}</p>
+              </div>
 
               <div className="flex gap-2 mt-4">
-                <a href={`/organizations/${organization.id}/sources/${source.id}/edit`} className="btn btn-sm btn-neutral">
+                <a
+                  href={`/organizations/${organization.id}/sources/${source.id}/edit`}
+                  className="btn btn-sm btn-neutral"
+                >
                   Edit
                 </a>
-                {/* Future: Delete button here */}
+
+                <button
+                  formAction={scrapeEventSource.bind(null, source.id)}
+                  className="btn btn-sm btn-info"
+                >
+                  Scrape Now
+                </button>
               </div>
-            </div>
+            </form>
           ))}
         </div>
       )}

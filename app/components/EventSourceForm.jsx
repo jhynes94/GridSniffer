@@ -17,6 +17,7 @@ export default function EventSourceForm({ mode, organizationId, eventSourceId, i
 
   return (
     <form action={serverAction} className="flex flex-col gap-6 max-w-2xl mx-auto">
+      {/* Event Source URL */}
       <div className="form-control w-full">
         <label className="label">
           <span className="label-text">Event Source URL</span>
@@ -30,7 +31,25 @@ export default function EventSourceForm({ mode, organizationId, eventSourceId, i
         />
       </div>
 
-      {/* In the future we can add scrapeStrategy select dropdown here */}
+      {/* Scrape Strategy */}
+      <div className="form-control w-full">
+        <label className="label">
+          <span className="label-text">Scrape Strategy</span>
+        </label>
+        <select
+          name="scrapeStrategy"
+          className="select select-bordered w-full"
+          required
+          defaultValue={initialData?.scrapeStrategy || 'html'}
+        >
+          <option value="html">HTML (Generic AI)</option>
+          <option value="pdf">PDF</option>
+          <option value="image">Image</option>
+          <option value="screenshot">Screenshot (Advanced)</option>
+        </select>
+      </div>
+
+      {/* Future: Conditionally render iframe picker here if scrapeStrategy === 'screenshot' */}
 
       <div className="form-control w-full">
         <button type="submit" className="btn btn-primary">
