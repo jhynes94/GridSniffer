@@ -46,7 +46,7 @@ export async function updateOrganization(id, formData) {
   }
 
   let logoBuffer = null;
-  if (logoFile && typeof logoFile.arrayBuffer === 'function') {
+  if (logoFile && typeof logoFile.arrayBuffer === 'function' && logoFile.size > 0) {
     const arrayBuffer = await logoFile.arrayBuffer();
     logoBuffer = Buffer.from(arrayBuffer);
   }
