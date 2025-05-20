@@ -52,15 +52,21 @@ model ScrapeJob {
 }
 
 model Event {
-  id           String    @id @default(uuid())
-  scrapeJobId  String
-  eventName    String
-  startDate    DateTime
-  endDate      DateTime?  // <-- optional if some events are one-day only
-  location     Json       // Expected to be GeoJSON Point
-  price        String?
-  scrapeJob    ScrapeJob  @relation(fields: [scrapeJobId], references: [id])
-  createdAt    DateTime   @default(now())
+  id                String    @id @default(uuid())
+  scrapeJobId       String
+  eventName         String
+  startDate         DateTime
+  endDate           DateTime?  // <-- optional if some events are one-day only
+  location          Json       // Expected to be GeoJSON Point
+  price             String?
+  eventFingerprint  String     // Unique identifier based on event details for comparison
+  isApproved        Boolean    @default(false) // Whether this event has been approved in diff
+  isDeleted         Boolean    @default(false) // Whether this event has been marked for deletion
+  scrapeJob         ScrapeJob  @relation(fields: [scrapeJobId], references: [id])
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
+  
+  @@index([eventFingerprint, scrapeJobId])
 }
 
 enum ScrapeStrategy {

@@ -41,7 +41,21 @@ export default async function ScrapeHistoryPage({ params: paramsPromise }) {
         </div>
       )}
 
-      <div className="mt-6">
+      <div className="flex gap-4 mt-6">
+        <a
+          href={`/organizations/${organizationId}/sources/${sourceId}/dashboard`}
+          className="btn btn-primary"
+        >
+          📊 Dashboard
+        </a>
+        
+        <a
+          href={`/organizations/${organizationId}/sources/${sourceId}/diff`}
+          className="btn btn-info"
+        >
+          🔄 Compare Event Changes
+        </a>
+        
         <a
           href={`/organizations/${organizationId}/sources/${sourceId}/events`}
           className="btn btn-secondary"

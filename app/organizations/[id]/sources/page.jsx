@@ -86,6 +86,13 @@ export default async function EventSourcesPage({ params: paramsPromise }) {
 
                 <div className="flex flex-wrap gap-2 mt-4">
                   <a
+                    href={`/organizations/${organizationId}/sources/${source.id}/dashboard`}
+                    className="btn btn-sm btn-primary"
+                  >
+                    📊 Dashboard
+                  </a>
+                  
+                  <a
                     href={`/organizations/${organizationId}/sources/${source.id}/edit`}
                     className="btn btn-sm btn-neutral"
                   >
@@ -96,9 +103,16 @@ export default async function EventSourcesPage({ params: paramsPromise }) {
 
                   <a
                     href={`/organizations/${organizationId}/sources/${source.id}/events`}
-                    className="btn btn-sm btn-primary"
+                    className="btn btn-sm btn-secondary"
                   >
                     📅 View Events
+                  </a>
+                  
+                  <a
+                    href={`/organizations/${organizationId}/sources/${source.id}/diff`}
+                    className="btn btn-sm btn-info"
+                  >
+                    🔄 Compare Changes
                   </a>
 
                   <a
