@@ -1,13 +1,5 @@
 import { prisma } from '@/lib/prisma';
-
-function statusColor(status) {
-  switch (status) {
-    case 'RUNNING': return 'badge-warning';
-    case 'SUCCESS': return 'badge-success';
-    case 'ERROR': return 'badge-error';
-    default: return 'badge-ghost'; // PENDING or undefined
-  }
-}
+import EventList from './components/EventList';
 
 export default async function SourceEventsPage({ params: paramsPromise }) {
   const params = await paramsPromise;
@@ -40,41 +32,13 @@ export default async function SourceEventsPage({ params: paramsPromise }) {
 
   return (
     <div className="p-6">
-      <h1 className="text-3xl font-bold mb-6">Scraped Events</h1>
+      <h1 className="text-3xl font-bold mb-6">Events</h1>
 
-      {allEvents.length === 0 ? (
-        <p className="text-gray-500">No events scraped yet.</p>
-      ) : (
-        <div className="grid gap-4">
-          {allEvents.map((event) => (
-            <div key={event.id} className="card shadow bg-base-200 card-bordered p-4 space-y-2">
-              <div className="flex flex-col gap-1">
-                <h2 className="text-xl font-bold">{event.eventName}</h2>
-
-                <p><strong>Start:</strong> {new Date(event.startDate).toLocaleString()}</p>
-
-                {event.endDate && (
-                  <p><strong>End:</strong> {new Date(event.endDate).toLocaleString()}</p>
-                )}
-
-                <p><strong>Price:</strong> {event.price || 'Unknown'}</p>
-
-                <p>
-                  <strong>Scraped:</strong>{' '}
-                  {new Date(event.scrapeDate).toLocaleString()}
-                </p>
-
-                <p>
-                  <strong>Status:</strong>{' '}
-                  <span className={`badge ${statusColor(event.scrapeStatus)}`}>
-                    {event.scrapeStatus}
-                  </span>
-                </p>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
+      <EventList 
+        events={allEvents} 
+        organizationId={organizationId} 
+        sourceId={sourceId} 
+      />
 
       <div className="flex gap-4 mt-6">
         <a
